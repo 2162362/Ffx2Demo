@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Ffx2Demo.Utilities
 {
-    public class ProcessMemoryReader
+    class ProcessMemoryReaderApi
     {
         // constants information can be found in <winnt.h>
         [Flags]
@@ -62,5 +63,21 @@ namespace Ffx2Demo.Utilities
         //			);
         [DllImport("kernel32.dll")]
         public static extern Int32 WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [In, Out] byte[] buffer, UInt32 size, out IntPtr lpNumberOfBytesWritten);
+    }
+
+    public class ProcessMemoryReader
+    {
+        public Process ReadProcess { get; set; }
+
+        private int handle;
+
+        public void OpenProcess()
+        {
+            ProcessMemoryReaderApi.ProcessAccessType access = ProcessMemoryReaderApi.ProcessAccessType.PROCESS_QUERY_INFORMATION |
+                ProcessMemoryReaderApi.ProcessAccessType.PROCESS_VM_READ |
+                ProcessMemoryReaderApi.ProcessAccessType.PROCESS_VM_WRITE |
+                ProcessMemoryReaderApi.ProcessAccessType.PROCESS_VM_OPERATION;
+            ProcessMemoryReaderApi.OpenProcess((uint)access, 1, (uint)ReadProcess.Id);
+        }
     }
 }
